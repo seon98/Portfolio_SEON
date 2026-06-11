@@ -8,8 +8,20 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+<script>
+  const savedTheme = localStorage.getItem('theme');
+  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  // 저장된 테마가 라이트이거나, 저장된 게 없는데 시스템이 라이트 모드일 경우
+  if (savedTheme === 'light' || (!savedTheme && !systemPrefersDark)) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+</script>
+
 <style>
   :root{
+    /* 기존 다크모드 (기본값) */
     --bg:#090D18;
     --bg-top:#0C1326;
     --surface:#111829;
@@ -26,6 +38,23 @@
     --display:"Space Grotesk",var(--kr);
     --mono:"JetBrains Mono",ui-monospace,"SF Mono",monospace;
   }
+
+  /* ✅ [추가] 라이트 모드 색상 팔레트 오버라이딩 */
+  :root[data-theme="light"] {
+    --bg: #F8FAFC;
+    --bg-top: #F1F5F9;
+    --surface: #FFFFFF;
+    --surface-2: #E2E8F0;
+    --border: rgba(0,0,0,.08);
+    --border-2: rgba(0,0,0,.15);
+    --text: #0F172A;
+    --dim: #475569;
+    --faint: #64748B;
+    --accent: #059669; 
+    --accent-2: #4338CA;
+    --grad: linear-gradient(135deg, #059669 0%, #4338CA 100%);
+  }
+
   *{margin:0;padding:0;box-sizing:border-box;}
   html{-webkit-text-size-adjust:100%;}
   body{
@@ -35,7 +64,35 @@
     line-height:1.6;
     -webkit-font-smoothing:antialiased;
     overflow-x:hidden;
+    /* ✅ [추가] 테마 전환 시 부드러운 애니메이션 효과 */
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
+  
+  /* ✅ [추가] 테마 토글 버튼 스타일 */
+  .theme-toggle {
+    position: absolute;
+    top: 24px;
+    right: 22px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-2);
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    cursor: pointer;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .theme-toggle:hover { background: rgba(255, 255, 255, 0.1); }
+  :root[data-theme="light"] .theme-toggle { background: rgba(0, 0, 0, 0.05); }
+  :root[data-theme="light"] .theme-toggle:hover { background: rgba(0, 0, 0, 0.1); }
+
+  /* --- 이하 기존 CSS 동일 유지 --- */
   .wrap{
     max-width:480px;
     margin:0 auto;
@@ -48,188 +105,65 @@
     overflow:hidden;
   }
   .pad{padding:0 22px;}
-
-  /* ============ HERO ============ */
-  header{
-    padding:64px 22px 40px;
-    position:relative;
-  }
-  .eyebrow{
-    font-family:var(--mono);
-    font-size:.7rem;
-    letter-spacing:.22em;
-    text-transform:uppercase;
-    color:var(--accent);
-    display:flex;align-items:center;gap:9px;
-    margin-bottom:26px;
-  }
-  .eyebrow::before{
-    content:"";width:7px;height:7px;border-radius:50%;
-    background:var(--accent);
-    box-shadow:0 0 0 4px rgba(70,229,192,.18);
-    animation:pulse 2.6s ease-in-out infinite;
-  }
+  header{padding:64px 22px 40px;position:relative;}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:9px;margin-bottom:26px;}
+  .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(70,229,192,.18);animation:pulse 2.6s ease-in-out infinite;}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-  h1.thesis{
-    font-family:var(--kr);
-    font-weight:700;
-    font-size:clamp(2rem,8.4vw,2.55rem);
-    line-height:1.22;
-    letter-spacing:-.02em;
-    margin-bottom:22px;
-  }
-  h1.thesis em{
-    font-style:normal;
-    background:var(--grad);
-    -webkit-background-clip:text;background-clip:text;
-    -webkit-text-fill-color:transparent;
-  }
-  .sub{
-    color:var(--dim);
-    font-size:.97rem;
-    line-height:1.7;
-    max-width:38ch;
-  }
-  .ident{
-    margin-top:30px;
-    display:flex;align-items:center;gap:13px;
-  }
-  .ident .av{
-    width:42px;height:42px;border-radius:13px;
-    background:var(--grad);
-    display:grid;place-items:center;
-    font-family:var(--display);font-weight:700;font-size:1.1rem;color:#06121f;
-    flex:none;
-  }
+  h1.thesis{font-family:var(--kr);font-weight:700;font-size:clamp(2rem,8.4vw,2.55rem);line-height:1.22;letter-spacing:-.02em;margin-bottom:22px;}
+  h1.thesis em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .sub{color:var(--dim);font-size:.97rem;line-height:1.7;max-width:38ch;}
+  .ident{margin-top:30px;display:flex;align-items:center;gap:13px;}
+  .ident .av{width:42px;height:42px;border-radius:13px;background:var(--grad);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:1.1rem;color:#06121f;flex:none;}
   .ident .name{font-family:var(--display);font-weight:600;font-size:1.02rem;letter-spacing:.01em;}
   .ident .name .ph{color:var(--faint);font-weight:400;}
   .ident .pos{font-family:var(--mono);font-size:.68rem;color:var(--dim);letter-spacing:.05em;margin-top:2px;}
-
-  .tags{
-    display:flex;flex-wrap:wrap;gap:8px;
-    margin-top:30px;
-  }
-  .tag{
-    font-family:var(--mono);font-size:.7rem;letter-spacing:.04em;
-    color:var(--dim);
-    border:1px solid var(--border-2);
-    background:rgba(255,255,255,.02);
-    padding:7px 11px;border-radius:999px;
-  }
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:30px;}
+  .tag{font-family:var(--mono);font-size:.7rem;letter-spacing:.04em;color:var(--dim);border:1px solid var(--border-2);background:rgba(255,255,255,.02);padding:7px 11px;border-radius:999px;}
   .tag b{color:var(--accent);font-weight:500;}
-
-  /* ============ SECTION LABEL ============ */
-  .sec-label{
-    font-family:var(--mono);
-    font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;
-    color:var(--faint);
-    display:flex;align-items:center;gap:12px;
-    margin:54px 22px 26px;
-  }
+  .sec-label{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);display:flex;align-items:center;gap:12px;margin:54px 22px 26px;}
   .sec-label span{color:var(--text);}
   .sec-label::after{content:"";flex:1;height:1px;background:var(--border);}
-
-  /* ============ TIMELINE ============ */
   .timeline{position:relative;padding:0 22px 0 52px;}
-  .timeline::before{
-    content:"";position:absolute;left:30px;top:10px;bottom:30px;width:2px;
-    background:linear-gradient(180deg,var(--accent),var(--accent-2) 55%,rgba(125,140,255,.05));
-    opacity:.55;border-radius:2px;
-  }
+  .timeline::before{content:"";position:absolute;left:30px;top:10px;bottom:30px;width:2px;background:linear-gradient(180deg,var(--accent),var(--accent-2) 55%,rgba(125,140,255,.05));opacity:.55;border-radius:2px;}
   .company{position:relative;margin-bottom:20px;}
-  .company::before{
-    content:"";position:absolute;left:-29px;top:30px;
-    width:15px;height:15px;border-radius:50%;
-    background:var(--bg);border:2px solid var(--accent);
-    box-shadow:0 0 0 4px rgba(9,13,24,1),0 0 14px rgba(70,229,192,.5);
-    z-index:2;
-  }
+  .company::before{content:"";position:absolute;left:-29px;top:30px;width:15px;height:15px;border-radius:50%;background:var(--bg);border:2px solid var(--accent);box-shadow:0 0 0 4px rgba(9,13,24,1),0 0 14px rgba(70,229,192,.5);z-index:2;}
   .company:nth-child(2)::before{border-color:#5FC7E0;box-shadow:0 0 0 4px var(--bg),0 0 14px rgba(95,199,224,.45);}
   .company:nth-child(3)::before{border-color:var(--accent-2);box-shadow:0 0 0 4px var(--bg),0 0 14px rgba(125,140,255,.45);}
-
-  .card{
-    background:linear-gradient(180deg,var(--surface),rgba(17,24,41,.6));
-    border:1px solid var(--border);
-    border-radius:18px;
-    padding:22px 20px 24px;
-  }
+  .card{background:linear-gradient(180deg,var(--surface),rgba(17,24,41,.6));border:1px solid var(--border);border-radius:18px;padding:22px 20px 24px;}
   .c-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
   .c-idx{font-family:var(--mono);font-size:.78rem;color:var(--faint);letter-spacing:.05em;}
   .c-domain{font-family:var(--mono);font-size:.62rem;letter-spacing:.13em;color:var(--accent);text-transform:uppercase;text-align:right;line-height:1.5;}
   .company:nth-child(2) .c-domain{color:#5FC7E0;}
   .company:nth-child(3) .c-domain{color:var(--accent-2);}
-
   .c-name{font-family:var(--display);font-weight:700;font-size:1.5rem;letter-spacing:-.01em;margin-top:14px;}
   .c-name small{font-family:var(--kr);font-weight:500;font-size:.95rem;color:var(--dim);margin-left:7px;letter-spacing:0;}
   .c-role{font-size:.86rem;color:var(--text);margin-top:7px;font-weight:500;}
-  .c-period{
-    font-family:var(--mono);font-size:.72rem;color:var(--dim);
-    margin-top:11px;display:inline-flex;align-items:center;gap:7px;
-    padding:5px 10px;border-radius:7px;
-    background:rgba(255,255,255,.04);border:1px dashed var(--border-2);
-  }
+  .c-period{font-family:var(--mono);font-size:.72rem;color:var(--dim);margin-top:11px;display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border-radius:7px;background:rgba(255,255,255,.04);border:1px dashed var(--border-2);}
   .c-period .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
-  .c-core{
-    color:var(--dim);font-size:.9rem;line-height:1.68;
-    margin-top:16px;padding-top:16px;border-top:1px solid var(--border);
-  }
-
+  .c-core{color:var(--dim);font-size:.9rem;line-height:1.68;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
   .proj{margin-top:20px;}
-  .proj-t{
-    display:flex;gap:9px;align-items:baseline;
-    font-size:.92rem;font-weight:600;color:var(--text);
-    line-height:1.45;
-  }
-  .proj-t .pn{
-    font-family:var(--mono);font-size:.68rem;color:var(--accent);
-    flex:none;padding-top:2px;
-  }
+  .proj-t{display:flex;gap:9px;align-items:baseline;font-size:.92rem;font-weight:600;color:var(--text);line-height:1.45;}
+  .proj-t .pn{font-family:var(--mono);font-size:.68rem;color:var(--accent);flex:none;padding-top:2px;}
   .company:nth-child(2) .proj-t .pn{color:#5FC7E0;}
   .company:nth-child(3) .proj-t .pn{color:var(--accent-2);}
   .proj ul{list-style:none;margin:9px 0 0;padding-left:23px;}
-  .proj li{
-    position:relative;font-size:.86rem;color:var(--dim);line-height:1.62;
-    padding:5px 0;
-  }
-  .proj li::before{
-    content:"";position:absolute;left:-15px;top:13px;
-    width:6px;height:1px;background:var(--accent-2);opacity:.8;
-  }
-
-  /* ============ STACK ============ */
+  .proj li{position:relative;font-size:.86rem;color:var(--dim);line-height:1.62;padding:5px 0;}
+  .proj li::before{content:"";position:absolute;left:-15px;top:13px;width:6px;height:1px;background:var(--accent-2);opacity:.8;}
   .stack{padding:0 22px;}
-  .srow{
-    display:grid;grid-template-columns:84px 1fr;gap:13px;
-    padding:15px 0;border-bottom:1px solid var(--border);
-    align-items:start;
-  }
+  .srow{display:grid;grid-template-columns:84px 1fr;gap:13px;padding:15px 0;border-bottom:1px solid var(--border);align-items:start;}
   .srow:last-child{border-bottom:none;}
   .skey{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;padding-top:5px;}
   .schips{display:flex;flex-wrap:wrap;gap:7px;}
-  .chip{
-    font-size:.8rem;color:var(--text);
-    background:var(--surface-2);border:1px solid var(--border);
-    padding:6px 11px;border-radius:8px;
-  }
-
-  /* ============ FOOTER ============ */
+  .chip{font-size:.8rem;color:var(--text);background:var(--surface-2);border:1px solid var(--border);padding:6px 11px;border-radius:8px;}
   footer{padding:54px 22px 60px;text-align:center;}
   .f-line{height:1px;background:var(--border);margin-bottom:34px;}
   .f-cta{font-family:var(--display);font-weight:600;font-size:1.3rem;letter-spacing:-.01em;}
   .f-cta em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
   .f-links{display:flex;flex-direction:column;gap:11px;margin-top:24px;}
-  .f-link{
-    display:flex;align-items:center;justify-content:center;gap:9px;
-    font-family:var(--mono);font-size:.82rem;color:var(--dim);
-    border:1px solid var(--border-2);border-radius:11px;
-    padding:13px;text-decoration:none;
-    transition:border-color .2s,color .2s;
-  }
+  .f-link{display:flex;align-items:center;justify-content:center;gap:9px;font-family:var(--mono);font-size:.82rem;color:var(--dim);border:1px solid var(--border-2);border-radius:11px;padding:13px;text-decoration:none;transition:border-color .2s,color .2s;}
   .f-link:active{border-color:var(--accent);color:var(--text);}
   .f-link .k{color:var(--faint);}
   .f-foot{font-family:var(--mono);font-size:.64rem;color:var(--faint);letter-spacing:.1em;margin-top:34px;}
-
-  /* ============ MOTION ============ */
   .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1);}
   .reveal.in{opacity:1;transform:none;}
   @media (prefers-reduced-motion:reduce){
@@ -241,7 +175,10 @@
 <body>
 <div class="wrap">
 
-  <!-- HERO -->
+  <button id="themeToggle" class="theme-toggle">
+    <span class="icon">🌙</span> <span class="text">Dark</span>
+  </button>
+
   <header>
     <div class="eyebrow">Software Engineer</div>
     <h1 class="thesis">대용량 데이터와 AI를<br><em>안정적으로 흐르게 하는</em><br>백엔드 · 클라우드 엔지니어</h1>
@@ -264,12 +201,9 @@
     </div>
   </header>
 
-  <!-- CAREER -->
   <div class="sec-label">Career — <span>경력</span></div>
 
   <div class="timeline">
-
-    <!-- 01 현대카드 -->
     <div class="company reveal">
       <div class="card">
         <div class="c-head">
@@ -280,7 +214,6 @@
         <div class="c-role">Software Engineer · Cloud &amp; Data Platform Architect</div>
         <div class="c-period"><span class="dot"></span>2026년 6월 ~ 재직중</div>
         <p class="c-core">AWS / GCP 멀티 클라우드 기반 대용량 AI/ML 데이터 플랫폼 아키텍처 설계와, 금융 보안 규제를 준수하는 데이터 파이프라인 구축을 전담했습니다.</p>
-
         <div class="proj">
           <div class="proj-t"><span class="pn">P1</span><span>금융 보안 표준 준수 멀티 클라우드 인프라 &amp; 거버넌스</span></div>
           <ul>
@@ -304,7 +237,6 @@
       </div>
     </div>
 
-    <!-- 02 야놀자 -->
     <div class="company reveal">
       <div class="card">
         <div class="c-head">
@@ -315,7 +247,6 @@
         <div class="c-role">Backend &amp; AI Service Engineer</div>
         <div class="c-period"><span class="dot"></span>2022년 3월 ~ 2025년 12월</div>
         <p class="c-core">생성형 AI·LLM 기반 대화형 서비스 백엔드 아키텍처 설계와, 확장성 높은 실시간 커뮤니케이션 서비스 개발을 담당했습니다.</p>
-
         <div class="proj">
           <div class="proj-t"><span class="pn">P1</span><span>대화형 AI 서비스 “NOLI(놀이)” 백엔드</span></div>
           <ul>
@@ -333,7 +264,6 @@
       </div>
     </div>
 
-    <!-- 03 알체라 -->
     <div class="company reveal">
       <div class="card">
         <div class="c-head">
@@ -344,7 +274,6 @@
         <div class="c-role">AI &amp; Computer Vision Software Engineer</div>
         <div class="c-period"><span class="dot"></span>2020년 1월 ~ 2022년 2월</div>
         <p class="c-core">고성능 AI 모델의 프로덕션 서빙, 대규모 생체(얼굴) 데이터 처리 시스템 및 공공 비즈니스 솔루션 개발을 담당했습니다.</p>
-
         <div class="proj">
           <div class="proj-t"><span class="pn">P1</span><span>인천국제공항공사 “스마트패스” 얼굴인식 서비스</span></div>
           <ul>
@@ -355,10 +284,8 @@
         </div>
       </div>
     </div>
-
   </div>
 
-  <!-- TECH STACK -->
   <div class="sec-label">Stack — <span>핵심 기술</span></div>
   <div class="stack reveal">
     <div class="srow">
@@ -387,14 +314,13 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
   <footer>
     <div class="f-line"></div>
     <div class="f-cta">함께 만들 다음 시스템을<br><em>이야기해요.</em></div>
     <div class="f-links">
-      <a class="f-link" href="#"><span class="k">EMAIL</span>seonheecher4806@gmail.com</a>
-      <a class="f-link" href="#"><span class="k">GITHUB</span>https://github.com/seon98</a>
-      <a class="f-link" href="#"><span class="k">PHONE</span>010-9519-6005</a>
+      <a class="f-link" href="mailto:seonheecher4806@gmail.com"><span class="k">EMAIL</span>seonheecher4806@gmail.com</a>
+      <a class="f-link" href="https://github.com/seon98" target="_blank" rel="noopener noreferrer"><span class="k">GITHUB</span>https://github.com/seon98</a>
+      <a class="f-link" href="tel:010-9519-6005"><span class="k">PHONE</span>010-9519-6005</a>
     </div>
     <div class="f-foot">SOFTWARE · CLOUD · DATA · AI</div>
   </footer>
@@ -402,6 +328,7 @@
 </div>
 
 <script>
+  // 기존 스크롤 애니메이션 유지
   (function(){
     var els = document.querySelectorAll('.reveal');
     if(!('IntersectionObserver' in window)){
@@ -415,6 +342,36 @@
     },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
     els.forEach(function(e){io.observe(e);});
   })();
+
+  // ✅ [추가] 테마 토글 동작 로직
+  const btn = document.getElementById('themeToggle');
+  
+  // 버튼 UI 업데이트 함수
+  const updateBtnUI = (isLight) => {
+    btn.innerHTML = isLight 
+      ? '<span class="icon">☀️</span> <span class="text">Light</span>'
+      : '<span class="icon">🌙</span> <span class="text">Dark</span>';
+  };
+
+  // 초기 상태에 맞게 버튼 UI 세팅
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  updateBtnUI(currentTheme === 'light');
+
+  // 클릭 이벤트
+  btn.addEventListener('click', () => {
+    const root = document.documentElement;
+    const isLight = root.getAttribute('data-theme') === 'light';
+
+    if (isLight) {
+      root.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'dark');
+      updateBtnUI(false);
+    } else {
+      root.setAttribute('data-theme', 'light');
+      localStorage.setItem('theme', 'light');
+      updateBtnUI(true);
+    }
+  });
 </script>
 </body>
 </html>
